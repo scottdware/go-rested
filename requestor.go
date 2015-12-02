@@ -33,7 +33,7 @@ func Get(url string, options *Options) ([]byte, error) {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
 	}
 
-	if len(options.ContentType) > 0 {
+	if options.ContentType != "" {
 		req.Header.Set("Content-Type", options.ContentType)
 	}
 
