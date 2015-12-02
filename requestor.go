@@ -3,6 +3,8 @@ package requestor
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -26,7 +28,7 @@ func Get(url string, options *Options) ([]byte, error) {
 	}
 	body := bytes.NewReader([]byte(options.Body))
 	req, _ = http.NewRequest("GET", url, body)
-	if options.Auth != "" {
+	if len(options.Auth) > 0 {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
 	}
 	res, err := client.Do(req)
