@@ -10,7 +10,8 @@ import (
 	"strings"
 )
 
-// Options builds our request parameters before sending it to the server.
+// Options contains parameters to be defined before sending the request to the server. Certain values
+// can be omitted based on the request method (i.e. GET typically won't need to send a Body).
 type Options struct {
 	Method      string
 	Body        string
