@@ -36,9 +36,14 @@ func Send(url string, options *Options) ([]byte, error) {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
 	}
 
-	fmt.Println(len(options.ContentType))
-	if options.ContentType != "" {
+	if len(options.ContentType) > 0 {
 		req.Header.Set("Content-Type", options.ContentType)
+	}
+
+	if len(options.Headers) > 0 {
+		for k, _ := range options.Headers {
+			req.Header.Add(k, options.Headers[k])
+		}
 	}
 
 	res, err := client.Do(req)
@@ -51,7 +56,7 @@ func Send(url string, options *Options) ([]byte, error) {
 	data, _ := ioutil.ReadAll(res.Body)
 
 	if res.StatusCode >= 400 {
-		return nil, errors.New(fmt.Sprintf("HTTP %d :: %s", res.StatusCode, string(data[:])))
+		return nil, errors.New(fmt.Sprintf("HTTP %d: %s", res.StatusCode, string(data[:])))
 	}
 
 	return data, nil
