@@ -7,17 +7,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // Options builds our request parameters before sending it to the server.
 type Options struct {
+	Method      string
 	Body        string
 	ContentType string
 	Auth        []string
 }
 
-// Get issues a HTTP GET request
-func Get(url string, options *Options) ([]byte, error) {
+// Send issues a HTTP request with the values specified in Options.
+func Send(url string, options *Options) ([]byte, error) {
 	var req *http.Request
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -27,7 +29,7 @@ func Get(url string, options *Options) ([]byte, error) {
 		},
 	}
 	body := bytes.NewReader([]byte(options.Body))
-	req, _ = http.NewRequest("GET", url, body)
+	req, _ = http.NewRequest(strings.ToUpper(options.Method), url, body)
 
 	if len(options.Auth) > 0 {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
