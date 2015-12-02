@@ -13,23 +13,23 @@ import (
 // can be omitted based on the request method (i.e. GET typically won't need to send a Body).
 type Options struct {
 	Method      string
-	Body        string
 	ContentType string
+	Body        string
 	Auth        []string
 	Headers     map[string]string
 }
 
 // HTTPData contains the information returned from our request.
 type HTTPData struct {
-	Body    []byte
 	Status  string
 	Code    int
 	Headers http.Header
+	Payload []byte
 	Error   error
 }
 
-// Send issues a HTTP request with the values specified in Options.
-func Send(url string, options *Options) (*HTTPData, error) {
+// Send issues an HTTP request with the values specified in Options.
+func Send(url string, options *Options) *HTTPData {
 	var req *http.Request
 	var data HTTPData
 	client := &http.Client{
@@ -58,14 +58,16 @@ func Send(url string, options *Options) (*HTTPData, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		data.Error = err
+
+		return &data
 	}
 
 	defer res.Body.Close()
 
 	payload, _ := ioutil.ReadAll(res.Body)
 
-	data.Body = payload
+	data.Payload = payload
 	data.Code = res.StatusCode
 	data.Status = res.Status
 	data.Headers = res.Header
@@ -74,5 +76,10 @@ func Send(url string, options *Options) (*HTTPData, error) {
 		data.Error = fmt.Errorf("HTTP %d: %s", res.StatusCode, string(payload))
 	}
 
-	return &data, nil
+	return &data
+}
+
+// String will convert the payload/body of the request from a []byte to a string value.
+func (h *HTTPData) String() string {
+	return string(h.Payload)
 }
