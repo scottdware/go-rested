@@ -28,9 +28,15 @@ func Get(url string, options *Options) ([]byte, error) {
 	}
 	body := bytes.NewReader([]byte(options.Body))
 	req, _ = http.NewRequest("GET", url, body)
+
 	if len(options.Auth) > 0 {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
 	}
+
+	if len(options.ContentType) > 0 {
+		req.Header.Set("Content-Type", options.ContentType)
+	}
+
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -41,10 +47,7 @@ func Get(url string, options *Options) ([]byte, error) {
 	data, _ := ioutil.ReadAll(res.Body)
 
 	if res.StatusCode >= 400 {
-		// if res.Header["Content-Type"][0] == "application/json" {
-		// }
-
-		return data, errors.New(fmt.Sprintf("HTTP %d :: %s", res.StatusCode, string(data[:])))
+		return nil, errors.New(fmt.Sprintf("HTTP %d :: %s", res.StatusCode, string(data[:])))
 	}
 
 	return data, nil
