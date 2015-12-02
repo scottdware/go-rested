@@ -16,6 +16,7 @@ type Options struct {
 	Body        string
 	ContentType string
 	Auth        []string
+	Headers     map[string]string
 }
 
 // Send issues a HTTP request with the values specified in Options.
@@ -35,6 +36,7 @@ func Send(url string, options *Options) ([]byte, error) {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
 	}
 
+	fmt.Println(len(options.ContentType))
 	if options.ContentType != "" {
 		req.Header.Set("Content-Type", options.ContentType)
 	}
