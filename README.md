@@ -4,3 +4,25 @@
 
 A Go package that makes calling RESTful API's easy.
 
+### Example
+
+To send a request, you first specify some options such as the method (GET, POST, PUT, etc.), Content-Type, any additional headers, etc.:
+
+```Go
+req := &requestor.Options{
+	Method:      "get",
+	Auth:        []string{"user", "securepassword"},
+	ContentType: "application/json",
+}
+```
+
+Then, call the `Send()` function to issue the request, specifying the URL and the options you defined above:
+
+```Go
+data, err := requestor.Send("https://someurl/api/v1.0/stuff", req)
+if err != nil {
+	fmt.Println(err)
+}
+
+fmt.Println(string(data))
+```
