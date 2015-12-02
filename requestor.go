@@ -3,7 +3,6 @@ package requestor
 import (
 	"bytes"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,9 +19,19 @@ type Options struct {
 	Headers     map[string]string
 }
 
+// HTTPData contains the information returned from our request.
+type HTTPData struct {
+	Body    []byte
+	Status  string
+	Code    int
+	Headers http.Header
+	Error   error
+}
+
 // Send issues a HTTP request with the values specified in Options.
-func Send(url string, options *Options) ([]byte, error) {
+func Send(url string, options *Options) (*HTTPData, error) {
 	var req *http.Request
+	var data HTTPData
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -54,11 +63,16 @@ func Send(url string, options *Options) ([]byte, error) {
 
 	defer res.Body.Close()
 
-	data, _ := ioutil.ReadAll(res.Body)
+	payload, _ := ioutil.ReadAll(res.Body)
+
+	data.Body = payload
+	data.Code = res.StatusCode
+	data.Status = res.Status
+	data.Headers = res.Header
 
 	if res.StatusCode >= 400 {
-		return nil, errors.New(fmt.Sprintf("HTTP %d: %s", res.StatusCode, string(data[:])))
+		data.Error = fmt.Errorf("HTTP %d: %s", res.StatusCode, string(payload))
 	}
 
-	return data, nil
+	return &data, nil
 }
