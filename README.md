@@ -29,6 +29,12 @@ if data.Error != nil {
 }
 ```
 
+The entire request with any additional query parameters defined will look like the following when sent to the server:
+
+```
+https://someurl/api/v1.0/stuff?another_param=somevalue&default_param=something&more_stuff=more-values
+```
+
 > If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
 
 The returned data is a struct with the following values:
@@ -43,7 +49,7 @@ type HTTPData struct {
 }
 ```
 
-For instance, you can see the payload by converting the `Body` field to a string:
+You can see the payload by converting the `Body` field to a string:
 
 ```Go
 fmt.Println(string(data.Body))
