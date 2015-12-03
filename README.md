@@ -38,8 +38,6 @@ The entire request with any additional query parameters defined will look like t
 https://someurl/api/v1.0/stuff?another_param=somevalue&default_param=something&more_stuff=more-values
 ```
 
-> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
-
 The returned data is a struct with the following values:
 
 ```Go
@@ -51,6 +49,14 @@ type HTTPData struct {
 	Error   error
 }
 ```
+
+If you would like to do a plain-and-simple GET request, without any authentication or parameters, you can leave the `Options` parameter `nil`, like so:
+
+```Go
+data := requestor.Send("https://someurl/api/v1.0/stuff", nil)
+```
+
+> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
 
 You can see the payload by converting the `Body` field to a string:
 
