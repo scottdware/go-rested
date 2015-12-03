@@ -1,4 +1,4 @@
-// package requestor makes calling RESTful API's easy.
+// Package requestor makes calling RESTful API's easy.
 package requestor
 
 import (
