@@ -42,7 +42,7 @@ The entire request with any additional query parameters defined will look like t
 https://someurl/api/v1.0/stuff?another_param=somevalue&default_param=something&more_stuff=more-values
 ```
 
-The returned data is a struct with the following values:
+The returned data is a struct with the following fields:
 
 ```Go
 type HTTPData struct {
