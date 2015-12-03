@@ -4,7 +4,7 @@
 
 A Go package that makes calling RESTful API's easy.
 
-### Example
+### Usage & Examples
 
 To send a request, you first specify some options such as the method (GET, POST, PUT, etc.), Content-Type, any additional headers, query parameters, etc.:
 
