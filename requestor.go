@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -13,6 +14,7 @@ import (
 // can be omitted based on the request method (i.e. GET typically won't need to send a Body).
 type Options struct {
 	Method      string
+	Query       map[string]string
 	ContentType string
 	Body        string
 	Auth        []string
@@ -24,12 +26,12 @@ type HTTPData struct {
 	Status  string
 	Code    int
 	Headers http.Header
-	Payload []byte
+	Body    []byte
 	Error   error
 }
 
 // Send issues an HTTP request with the values specified in Options.
-func Send(url string, options *Options) *HTTPData {
+func Send(uri string, options *Options) *HTTPData {
 	var req *http.Request
 	var data HTTPData
 	client := &http.Client{
@@ -39,8 +41,21 @@ func Send(url string, options *Options) *HTTPData {
 			},
 		},
 	}
+	u, err := url.Parse(uri)
+	if err != nil {
+		data.Error = err
+
+		return &data
+	}
+
+	query := u.Query()
+	for k, _ := range options.Query {
+		query.Add(k, options.Query[k])
+	}
+
+	u.RawQuery = query.Encode()
 	body := bytes.NewReader([]byte(options.Body))
-	req, _ = http.NewRequest(strings.ToUpper(options.Method), url, body)
+	req, _ = http.NewRequest(strings.ToUpper(options.Method), u.String(), body)
 
 	if len(options.Auth) > 0 {
 		req.SetBasicAuth(options.Auth[0], options.Auth[1])
@@ -66,8 +81,7 @@ func Send(url string, options *Options) *HTTPData {
 	defer res.Body.Close()
 
 	payload, _ := ioutil.ReadAll(res.Body)
-
-	data.Payload = payload
+	data.Body = payload
 	data.Code = res.StatusCode
 	data.Status = res.Status
 	data.Headers = res.Header
@@ -77,9 +91,4 @@ func Send(url string, options *Options) *HTTPData {
 	}
 
 	return &data
-}
-
-// String will convert the payload/body of the request from a []byte to a string value.
-func (h *HTTPData) String() string {
-	return string(h.Payload)
 }
