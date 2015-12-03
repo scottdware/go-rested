@@ -27,11 +27,14 @@ Then, call the `Send()` function to issue the request, specifying the URL and th
 
 ```Go
 data := requestor.Send("https://someurl/api/v1.0/stuff?default_param=something", req)
+```
+
+> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. You can check for errors similar to how you normally do in Go:
+```Go
 if data.Error != nil {
 	fmt.Println(data.Error)
 }
 ```
-> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
 
 The entire request with any additional query parameters defined will look like the following when sent to the server:
 
