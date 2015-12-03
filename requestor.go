@@ -49,7 +49,7 @@ func Send(uri string, options *Options) *HTTPData {
 	}
 
 	query := u.Query()
-	for k, _ := range options.Query {
+	for k := range options.Query {
 		query.Add(k, options.Query[k])
 	}
 
@@ -66,7 +66,7 @@ func Send(uri string, options *Options) *HTTPData {
 	}
 
 	if len(options.Headers) > 0 {
-		for k, _ := range options.Headers {
+		for k := range options.Headers {
 			req.Header.Add(k, options.Headers[k])
 		}
 	}
