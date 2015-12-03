@@ -35,6 +35,30 @@ type HTTPData struct {
 func Send(uri string, options *Options) *HTTPData {
 	var req *http.Request
 	var data HTTPData
+
+	if options == nil {
+		res, err := http.Get(uri)
+		if err != nil {
+			data.Error = err
+
+			return &data
+		}
+
+		defer res.Body.Close()
+
+		payload, _ := ioutil.ReadAll(res.Body)
+		data.Body = payload
+		data.Code = res.StatusCode
+		data.Status = res.Status
+		data.Headers = res.Header
+
+		if res.StatusCode >= 400 {
+			data.Error = fmt.Errorf("HTTP %d: %s", res.StatusCode, string(payload))
+		}
+
+		return &data
+	}
+
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
