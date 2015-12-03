@@ -31,6 +31,7 @@ if data.Error != nil {
 	fmt.Println(data.Error)
 }
 ```
+> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
 
 The entire request with any additional query parameters defined will look like the following when sent to the server:
 
@@ -55,8 +56,6 @@ If you would like to do a plain-and-simple GET request, without any authenticati
 ```Go
 data := requestor.Send("https://someurl/api/v1.0/stuff", nil)
 ```
-
-> If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. This is why the above error check looks a bit different than how you would normally check for errors in Go.
 
 You can see the payload by converting the `Body` field to a string:
 
