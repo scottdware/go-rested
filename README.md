@@ -13,6 +13,9 @@ req := &requestor.Options{
 	Method:      "get",
 	ContentType: "application/json",
 	Auth:        []string{"user", "securepassword"},
+	Headers: map[string]string{
+		"Custom-Header": "value",
+	},
 	Query: map[string]string{
 		"another_param": "somevalue",
 		"more_stuff": "more-values",
