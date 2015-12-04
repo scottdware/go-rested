@@ -31,7 +31,7 @@ type HTTPData struct {
 	Error   error
 }
 
-// Send issues an HTTP request with the values specified in Options.
+// Send issues an HTTP request with the parameters specified in Options.
 func Send(uri string, options *Options) *HTTPData {
 	var req *http.Request
 	var data HTTPData
