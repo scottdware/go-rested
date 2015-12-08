@@ -36,8 +36,16 @@ func Send(uri string, options *Options) *HTTPData {
 	var req *http.Request
 	var data HTTPData
 
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
 	if options == nil {
-		res, err := http.Get(uri)
+		res, err := client.Get(uri)
 		if err != nil {
 			data.Error = err
 
@@ -59,13 +67,6 @@ func Send(uri string, options *Options) *HTTPData {
 		return &data
 	}
 
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	}
 	u, err := url.Parse(uri)
 	if err != nil {
 		data.Error = err
