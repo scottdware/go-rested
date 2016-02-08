@@ -11,9 +11,9 @@ import (
 	"strings"
 )
 
-// Options contains parameters to be defined before sending the request to the server. Certain values
+// Request contains parameters to be defined before sending the request to the server. Certain values
 // can be omitted based on the request method (i.e. GET typically won't need to send a Body).
-type Options struct {
+type Request struct {
 	Method      string
 	Query       map[string]string
 	ContentType string
@@ -22,8 +22,8 @@ type Options struct {
 	Headers     map[string]string
 }
 
-// HTTPData contains the information returned from our request.
-type HTTPData struct {
+// Response contains the information returned from our request.
+type Response struct {
 	Status  string
 	Code    int
 	Headers http.Header
@@ -31,10 +31,10 @@ type HTTPData struct {
 	Error   error
 }
 
-// Send issues an HTTP request with the parameters specified in Options.
-func Send(uri string, options *Options) *HTTPData {
+// Send issues an HTTP request with the parameters specified in request.
+func Send(uri string, request *Request) *Response {
 	var req *http.Request
-	var data HTTPData
+	var data Response
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -44,7 +44,7 @@ func Send(uri string, options *Options) *HTTPData {
 		},
 	}
 
-	if options == nil {
+	if request == nil {
 		res, err := client.Get(uri)
 		if err != nil {
 			data.Error = err
@@ -75,25 +75,25 @@ func Send(uri string, options *Options) *HTTPData {
 	}
 
 	query := u.Query()
-	for k := range options.Query {
-		query.Add(k, options.Query[k])
+	for k := range request.Query {
+		query.Add(k, request.Query[k])
 	}
 
 	u.RawQuery = query.Encode()
-	body := bytes.NewReader([]byte(options.Body))
-	req, _ = http.NewRequest(strings.ToUpper(options.Method), u.String(), body)
+	body := bytes.NewReader([]byte(request.Body))
+	req, _ = http.NewRequest(strings.ToUpper(request.Method), u.String(), body)
 
-	if len(options.Auth) > 0 {
-		req.SetBasicAuth(options.Auth[0], options.Auth[1])
+	if len(request.Auth) > 0 {
+		req.SetBasicAuth(request.Auth[0], request.Auth[1])
 	}
 
-	if len(options.ContentType) > 0 {
-		req.Header.Set("Content-Type", options.ContentType)
+	if len(request.ContentType) > 0 {
+		req.Header.Set("Content-Type", request.ContentType)
 	}
 
-	if len(options.Headers) > 0 {
-		for k := range options.Headers {
-			req.Header.Add(k, options.Headers[k])
+	if len(request.Headers) > 0 {
+		for k := range request.Headers {
+			req.Header.Add(k, request.Headers[k])
 		}
 	}
 
