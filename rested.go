@@ -31,7 +31,7 @@ type Response struct {
 	Error   error
 }
 
-// Send issues an HTTP request with the parameters specified in request.
+// Send issues an HTTP request with the parameters specified in the Request struct.
 func Send(uri string, request *Request) *Response {
 	var req *http.Request
 	var data Response
