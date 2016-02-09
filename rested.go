@@ -31,8 +31,18 @@ type Response struct {
 	Error   error
 }
 
+// NewRequest creates the state for our REST call.
+func NewRequest() *Request {
+	return &Request{}
+}
+
+// BasicAuth sets the authentication using a standard username/password combination.
+func (r *Request) BasicAuth(user, password string) {
+	r.Auth = []string{user, password}
+}
+
 // Send issues an HTTP request with the parameters specified in the Request struct.
-func Send(uri string, request *Request) *Response {
+func (r *Request) Send(method, uri string, body []byte, headers, query map[string]string) *Response {
 	var req *http.Request
 	var data Response
 
@@ -44,29 +54,6 @@ func Send(uri string, request *Request) *Response {
 		},
 	}
 
-	if request == nil {
-		res, err := client.Get(uri)
-		if err != nil {
-			data.Error = err
-
-			return &data
-		}
-
-		defer res.Body.Close()
-
-		payload, _ := ioutil.ReadAll(res.Body)
-		data.Body = payload
-		data.Code = res.StatusCode
-		data.Status = res.Status
-		data.Headers = res.Header
-
-		if res.StatusCode >= 400 {
-			data.Error = fmt.Errorf("HTTP %d: %s", res.StatusCode, string(payload))
-		}
-
-		return &data
-	}
-
 	u, err := url.Parse(uri)
 	if err != nil {
 		data.Error = err
@@ -74,26 +61,25 @@ func Send(uri string, request *Request) *Response {
 		return &data
 	}
 
-	query := u.Query()
-	for k := range request.Query {
-		query.Add(k, request.Query[k])
+	q := u.Query()
+
+	if query != nil {
+		for k := range query {
+			q.Add(k, query[k])
+		}
 	}
 
-	u.RawQuery = query.Encode()
-	body := bytes.NewReader([]byte(request.Body))
-	req, _ = http.NewRequest(strings.ToUpper(request.Method), u.String(), body)
+	u.RawQuery = q.Encode()
+	b := bytes.NewReader([]byte(body))
+	req, _ = http.NewRequest(strings.ToUpper(method), u.String(), b)
 
-	if len(request.Auth) > 0 {
-		req.SetBasicAuth(request.Auth[0], request.Auth[1])
+	if len(r.Auth) > 0 {
+		req.SetBasicAuth(r.Auth[0], r.Auth[1])
 	}
 
-	if len(request.ContentType) > 0 {
-		req.Header.Set("Content-Type", request.ContentType)
-	}
-
-	if len(request.Headers) > 0 {
-		for k := range request.Headers {
-			req.Header.Add(k, request.Headers[k])
+	if headers != nil {
+		for k := range headers {
+			req.Header.Add(k, headers[k])
 		}
 	}
 
