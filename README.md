@@ -49,7 +49,7 @@ https://someurl/api/v1.0/stuff?results=10&search_string=dog&default_param=someth
 The returned data is a struct with the following fields:
 
 ```Go
-type HTTPData struct {
+type Response struct {
 	Status  string
 	Code    int
 	Headers http.Header
