@@ -41,8 +41,8 @@ func (r *Request) BasicAuth(user, password string) {
 	r.Auth = []string{user, password}
 }
 
-// Send issues an HTTP request with the parameters specified in the Request struct.
-func (r *Request) Send(method, uri string, body []byte, headers, query map[string]string) *Response {
+// Send issues an HTTP request with the given options.
+func (r *Request) Send(method, uri, content string, body []byte, headers, query map[string]string) *Response {
 	var req *http.Request
 	var data Response
 
@@ -75,6 +75,10 @@ func (r *Request) Send(method, uri string, body []byte, headers, query map[strin
 
 	if len(r.Auth) > 0 {
 		req.SetBasicAuth(r.Auth[0], r.Auth[1])
+	}
+
+	if content != "" {
+		req.Header.Add("Content-Type", content)
 	}
 
 	if headers != nil {
