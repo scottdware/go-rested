@@ -33,6 +33,21 @@ Then, call the `Send()` function to issue the request, specifying the URL and th
 data := r.Send("get", "https://someurl/api/v1.0/stuff?default_param=something", nil, headers, query)
 ```
 
+If you need to send a request using form values, then you can use the `SendForm()` function. Place your form values in a `map[string]string` type
+just like the headers and query parameters:
+
+> Note: headers and query parameters are the same as above.
+
+```Go
+formValues := map[string]string{
+	"name": "Scott Ware",
+	"age": "unknown",
+	"sport": "Hockey",
+}
+
+data := r.SendForm("post", "https://someplace/to/upload", formValues, nil, nil)
+```
+
 > If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. You can check for errors similar to how you normally do in Go:
 ```Go
 if data.Error != nil {
@@ -40,11 +55,13 @@ if data.Error != nil {
 }
 ```
 
+<!--
 The entire request with any additional query parameters defined will look like the following when sent to the server:
 
 ```
 https://someurl/api/v1.0/stuff?results=10&search_string=dog&default_param=something
 ```
+-->
 
 The returned data is a struct with the following fields:
 
