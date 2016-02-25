@@ -31,6 +31,16 @@ type Response struct {
 	Error   error
 }
 
+var (
+	client = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+)
+
 // NewRequest creates the state for our REST call.
 func NewRequest() *Request {
 	return &Request{}
@@ -41,18 +51,11 @@ func (r *Request) BasicAuth(user, password string) {
 	r.Auth = []string{user, password}
 }
 
-// Send issues an HTTP request with the given options.
+// Send issues an HTTP request with the given options. "body", "headers" and "query" can be 'nil' if
+// you do not need to send the extra data in the request.
 func (r *Request) Send(method, uri string, body []byte, headers, query map[string]string) *Response {
 	var req *http.Request
 	var data Response
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	}
 
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -70,8 +73,73 @@ func (r *Request) Send(method, uri string, body []byte, headers, query map[strin
 	}
 
 	u.RawQuery = q.Encode()
+
 	b := bytes.NewReader([]byte(body))
 	req, _ = http.NewRequest(strings.ToUpper(method), u.String(), b)
+
+	if len(r.Auth) > 0 {
+		req.SetBasicAuth(r.Auth[0], r.Auth[1])
+	}
+
+	if headers != nil {
+		for k := range headers {
+			req.Header.Add(k, headers[k])
+		}
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		data.Error = err
+
+		return &data
+	}
+
+	defer res.Body.Close()
+
+	payload, _ := ioutil.ReadAll(res.Body)
+	data.Body = payload
+	data.Code = res.StatusCode
+	data.Status = res.Status
+	data.Headers = res.Header
+
+	if res.StatusCode >= 400 {
+		data.Error = fmt.Errorf("HTTP %d: %s", res.StatusCode, string(payload))
+	}
+
+	return &data
+}
+
+// SendForm is used to send POST/PUT form values when you can't issue the request normally.
+// "headers" and "query" can be 'nil' if you do not need to send the extra data in the request.
+func (r *Request) SendForm(method, uri string, form, headers, query map[string]string) *Response {
+	var req *http.Request
+	var data Response
+
+	u, err := url.Parse(uri)
+	if err != nil {
+		data.Error = err
+
+		return &data
+	}
+
+	q := u.Query()
+
+	if query != nil {
+		for k := range query {
+			q.Add(k, query[k])
+		}
+	}
+
+	u.RawQuery = q.Encode()
+
+	f := url.Values{}
+	for k, v := range form {
+		f.Add(k, v)
+	}
+
+	req, _ = http.NewRequest(strings.ToUpper(method), u.String(), strings.NewReader(f.Encode()))
+	req.PostForm = f
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	if len(r.Auth) > 0 {
 		req.SetBasicAuth(r.Auth[0], r.Auth[1])
