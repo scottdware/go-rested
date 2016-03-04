@@ -33,7 +33,7 @@ Then, call the `Send()` function to issue the request. This function takes the f
 |-----|-----------|
 |method|The HTTP method (i.e. GET, POST, DELETE, etc.)|
 |uri|The URI/URL that you will be calling.|
-|body|The contents of your request. This must be a byte slice (`[]byte`) or `map[string]string` type if you are posting form values.|
+|body|The contents of your request. This must be a byte slice (`[]byte`).|
 |headers|Any additional headers you want to send. Must be a `map[string]string` type.|
 |query|Any additional query parameters you want to send. Must be a `map[string]string` type.|
 
@@ -41,7 +41,8 @@ Then, call the `Send()` function to issue the request. This function takes the f
 data := r.Send("get", "https://someurl/api/v1.0/stuff?default_param=something", nil, headers, query)
 ```
 
-If you need to send/post a form, just place your form values in a `map[string]string` type and use that as the `body` parameter.
+If you need to send/post a form, just place your form values in a `map[string]string` type and use the `SendForm()` function. The parameters are
+the same as the `Send()` function, except in place of the `body` parameter, you have your form values.
 
 > Note: headers and query parameters are the same as above.
 
@@ -52,7 +53,7 @@ formValues := map[string]string{
 	"sport": "Hockey",
 }
 
-data := r.Send("post", "https://someplace/to/upload", formValues, nil, nil)
+data := r.SendForm("post", "https://someplace/to/upload", formValues, nil, nil)
 ```
 
 > If there was any type of error in your request, it will be defined in the `Error` field of the returned struct. You can check for errors similar to how you normally do in Go:
