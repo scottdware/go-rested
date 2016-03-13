@@ -110,7 +110,7 @@ func (r *Request) Send(method, uri string, body []byte, headers, query map[strin
 }
 
 // SendForm issues an HTTP POST/PUT, etc. when you need to use form values. The values must be in a map[string]string type.
-func (r *Request) SendForm(method, uri string, form map[string]string, headers, query map[string]string) *Response {
+func (r *Request) SendForm(method, uri string, form, headers, query map[string]string) *Response {
 	var req *http.Request
 	var data Response
 
